@@ -1,18 +1,35 @@
 import React, { Component } from 'react';
-import closedDoor from '../images/door_closed.png';
 
 class Door extends Component {
   render() {
-    return (
-      <div class="door door-closed">
-        <span class="door-number">{this.props.number}</span>
-      </div>
-    );
+    if (this.props.open) {
+      if (this.props.hasPrize) {
+        return (
+          <div className="door door-open door-prize">
+            <span className="door-number">{this.props.number}</span>
+          </div>
+        );
+      } else {
+        return (
+          <div className="door door-open door-zonk">
+            <span className="door-number">{this.props.number}</span>
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div className="door door-closed">
+          <span className="door-number">{this.props.number}</span>
+        </div>
+      );
+    }
   }
 }
 
 Door.defaultProps = {
-  number: 0
+  number: 0,
+  hasPrize: false,
+  open: false
 }
 
 export default Door;

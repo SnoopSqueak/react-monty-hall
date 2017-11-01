@@ -10,16 +10,27 @@ class Game extends Component {
   }
 
   render() {
-    this.state.doors = [];
     for (let i = 0; i < this.props.numOfDoors; i++) {
       this.state.doors.push(<Door number={i+1} onClick={this.clickDoor}/>);
     }
     return (
-      <section class="game">
+      <section className="game">
         <div>{this.state.doors.length} Doors:</div>
-        <div>{this.state.doors}</div>
+        {
+          this.state.doors.map((door,index) => {
+            return (
+              <span key={index}>
+                {door}
+              </span>
+            );
+          })
+        }
       </section>
     );
+  }
+
+  clickDoor() {
+    console.log("wat do");
   }
 }
 
