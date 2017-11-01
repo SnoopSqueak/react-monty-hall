@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
+import Door from './Door.js';
 
 class Game extends Component {
   render() {
     return (
-      <p>There's nothing here just yet. Please be patient! ;)</p>
+      <div class="game">
+        <Door/>
+        <Door/>
+        <Door/>
+      </div>
     );
   }
 }
