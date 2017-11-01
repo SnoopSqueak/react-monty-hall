@@ -3,14 +3,21 @@ import Door from './Door.js';
 
 class Game extends Component {
   render() {
+    let doors = [];
+    for (let i = 0; i < this.props.numOfDoors; i++) {
+      doors.push(<Door/>);
+    }
     return (
-      <div class="game">
-        <Door/>
-        <Door/>
-        <Door/>
-      </div>
+      <section class="game">
+        <div>{this.props.numOfDoors}:</div>
+        <div>{doors}</div>
+      </section>
     );
   }
+}
+
+Game.defaultProps = {
+  numOfDoors: 30
 }
 
 export default Game;
