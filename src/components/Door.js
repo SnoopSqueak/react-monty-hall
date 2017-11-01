@@ -4,9 +4,15 @@ import closedDoor from '../images/door_closed.png';
 class Door extends Component {
   render() {
     return (
-      <img class="door door-closed" alt="Closed door" src={closedDoor}/>
+      <div class="door door-closed">
+        <span class="door-number">{this.props.number}</span>
+      </div>
     );
   }
+}
+
+Door.defaultProps = {
+  number: 0
 }
 
 export default Door;

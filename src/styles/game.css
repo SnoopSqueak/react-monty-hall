@@ -1,0 +1,21 @@
+.game {
+  position: relative;
+}
+
+.door {
+  position: relative;
+  display: inline-block;
+}
+
+.door-closed {
+  background-image: url("../images/door_closed.png");
+  width: 256px;
+  height: 256px;
+  margin: 10px;
+}
+
+.door-number {
+  position: relative;
+  top: 5%;
+  font-size: 72pt;
+}
