@@ -40,3 +40,7 @@
   top: 5%;
   font-size: 72pt;
 }
+
+.door-selected {
+  background-color: yellow
+}

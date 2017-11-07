@@ -1,26 +1,40 @@
 import React, { Component } from 'react';
 import Door from './Door.js';
+import $ from 'jquery';
 
 class Game extends Component {
   constructor (props) {
     super(props);
-    this.state = {
-      doors: [],
-      phases: ["select", "openZonks", "switch", "openPrize"],
-      currentPhase: 0
+    let numOfDoors = this.props.numOfDoors;
+    if (numOfDoors < Game.minDoors) {
+      numOfDoors = Game.minDoors;
+    } else if (numOfDoors > Game.maxDoors) {
+      numOfDoors = Game.maxDoors;
     }
+    this.state = {
+      phases: ["select", "openZonks", "switch", "openPrize"],
+      currentPhase: 0,
+      prizeDoor: Math.floor((Math.random() * this.props.numOfDoors)),
+      numOfDoors: numOfDoors,
+      selectedDoor: null
+    };
+    console.log("PRIZE DOOR IS " + this.state.prizeDoor);
   }
 
   render() {
-    for (let i = 0; i < this.props.numOfDoors; i++) {
-      let door = <Door number={i+1} clickHandler={this.clickDoor}/>;
-      this.state.doors.push(door);
+    let doors = [];
+    for (let i = 0; i < this.state.numOfDoors; i++) {
+      if (this.state.selectedDoor !== null && this.state.selectedDoor === i) {
+        doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected="true"/>);
+      } else {
+        doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)}/>);
+      }
     }
     return (
       <section className="game">
-        <div>{this.state.doors.length} Doors:</div>
+        <div>{doors.length} Doors:</div>
         {
-          this.state.doors.map((door,index) => {
+          doors.map((door,index) => {
             return (
               <span key={index}>
                 {door}
@@ -28,15 +42,30 @@ class Game extends Component {
             );
           })
         }
+        <div><button onClick={(e) => this.nextPhase(e)}>Next</button></div>
       </section>
     );
   }
 
-  clickDoor(e) {
-    console.log("wat do");
-    console.log(e.target.childNodes[0].innerText);
+  clickDoor(e, i) {
+    e.preventDefault();
+    console.log("Clicked on door #" + (i + 1));
+    this.setState({selectedDoor: i});
+    console.log("Set selectedDoor = " + this.state.selectedDoor);
+  }
+
+  nextPhase() {
+    let tempPhase = this.state.currentPhase + 1;
+    while (tempPhase >= this.state.phases.length) {
+      tempPhase -= this.state.phases.length;
+    }
+    console.log("Beginning " + this.state.phases[tempPhase] + " phase...");
+    this.setState({phase: tempPhase});
   }
 }
+
+Game.maxDoors = 999;
+Game.minDoors = 3;
 
 Game.defaultProps = {
   numOfDoors: 30

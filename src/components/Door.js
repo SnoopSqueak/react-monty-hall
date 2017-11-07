@@ -1,35 +1,40 @@
 import React, { Component } from 'react';
 
 class Door extends Component {
+  constructor (props) {
+    super(props);
+    this.state = {
+      hasPrize: false,
+      isOpen: false
+    };
+  }
+
   render() {
-    if (this.props.open) {
-      if (this.props.hasPrize) {
-        return (
-          <div className="door door-open door-prize" onClick={this.props.clickHandler}>
-            <span className="door-number">{this.props.number}</span>
-          </div>
-        );
+    let classes = "door";
+    if (this.state.isOpen) {
+      classes += " door-open";
+      if (this.state.hasPrize) {
+        classes += " door-prize";
       } else {
-        return (
-          <div className="door door-open door-zonk" onClick={this.props.clickHandler}>
-            <span className="door-number">{this.props.number}</span>
-          </div>
-        );
+        classes += " door-zonk";
       }
     } else {
-      return (
-        <div className="door door-closed" onClick={this.props.clickHandler}>
-          <span className="door-number">{this.props.number}</span>
-        </div>
-      );
+      classes += " door-closed";
     }
+    if (this.props.isSelected) {
+      classes += " door-selected"
+    }
+    return (
+      <div className={classes} onClick={this.props.clickHandler}>
+        <span className="door-number">{this.props.number}</span>
+      </div>
+    );
   }
 }
 
 Door.defaultProps = {
   number: 0,
-  hasPrize: false,
-  open: false,
+  isSelected: false,
   clickHandler: () => {
     console.log("No click handler has been set up for this door.");
   }
