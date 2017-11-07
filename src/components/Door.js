@@ -5,20 +5,20 @@ class Door extends Component {
     if (this.props.open) {
       if (this.props.hasPrize) {
         return (
-          <div className="door door-open door-prize">
+          <div className="door door-open door-prize" onClick={this.props.clickHandler}>
             <span className="door-number">{this.props.number}</span>
           </div>
         );
       } else {
         return (
-          <div className="door door-open door-zonk">
+          <div className="door door-open door-zonk" onClick={this.props.clickHandler}>
             <span className="door-number">{this.props.number}</span>
           </div>
         );
       }
     } else {
       return (
-        <div className="door door-closed">
+        <div className="door door-closed" onClick={this.props.clickHandler}>
           <span className="door-number">{this.props.number}</span>
         </div>
       );
@@ -29,7 +29,10 @@ class Door extends Component {
 Door.defaultProps = {
   number: 0,
   hasPrize: false,
-  open: false
+  open: false,
+  clickHandler: () => {
+    console.log("No click handler has been set up for this door.");
+  }
 }
 
 export default Door;
