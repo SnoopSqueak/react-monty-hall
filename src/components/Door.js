@@ -16,7 +16,7 @@ class Door extends Component {
         </div>
         <div className={doorClass}>
         </div>
-        <span className="door-number">{this.props.number}</span>
+        <span className="door-number noselect">{this.props.number}</span>
       </div>
     );
   }

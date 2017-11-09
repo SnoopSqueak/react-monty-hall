@@ -10,24 +10,24 @@ class Game extends Component {
     } else if (numOfDoors > Game.MAX_DOORS) {
       numOfDoors = Game.MAX_DOORS;
     }
+
     this.state = {
       currentPhase: 0,
       prizeDoor: Math.floor((Math.random() * this.props.numOfDoors)),
       selectedDoor: null,
-      phases: ["firstChoice", "openZonks", "secondChoice", "openAll"],
-      openDoors: [],
-      numOfDoors: numOfDoors
+      phases: ["closeAll", "openZonks", "openAll"],
+      openDoors: Array(parseInt(numOfDoors, 10)).fill(false)
     };
-    console.log("PRIZE DOOR IS AT INDEX " + this.state.prizeDoor);
   }
 
   render() {
     console.log("RENDERING: " + JSON.stringify(this.state));
     let doors = [];
-    for (let i = 0; i < this.state.numOfDoors; i++) {
+    for (let i = 0; i < this.state.openDoors.length; i++) {
       let isSelected = (this.state.selectedDoor !== null && this.state.selectedDoor === i);
-      let isOpen = this.state.openDoors.includes(i);
-      doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={isOpen}/>);
+      let isOpen = this.state.openDoors[i];
+      let hasPrize = this.state.prizeDoor === i;
+      doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={isOpen} hasPrize={hasPrize}/>);
     }
     let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>Next</button> : <button disabled="true">Next</button>
     return (
@@ -50,7 +50,7 @@ class Game extends Component {
   clickDoor(e, i) {
     e.preventDefault();
     console.log("Clicked on door #" + (i + 1));
-    if (this.state.openDoors.includes(i)) return;
+    if (this.state.openDoors[i]) return;
     this.setState({selectedDoor: i});
     console.log("Set selectedDoor index = " + i);
   }
@@ -62,9 +62,10 @@ class Game extends Component {
     }
     this.setState({currentPhase: tempPhase});
     switch (this.state.phases[tempPhase]) {
-      case "firstChoice": this.resetGame(); break;
+      case "closeAll": this.resetGame(); break;
       case "openZonks": this.openZonks(); break;
-      default: console.log("Unrecognized state '" + this.state.phases[tempPhase] + "'.");
+      case "openAll": this.openAll(); break;
+      default: console.log("Unrecognized phase '" + this.state.phases[tempPhase] + "'.");
     }
   }
 
@@ -72,10 +73,9 @@ class Game extends Component {
     this.setState({
       currentPhase: 0,
       prizeDoor: Math.floor((Math.random() * this.props.numOfDoors)),
-      openDoors: [],
+      openDoors: Array(parseInt(this.props.numOfDoors, 10)).fill(false),
       selectedDoor: null
     });
-    console.log("PRIZE DOOR IS AT INDEX " + this.state.prizeDoor);
   }
 
   openZonks() {
@@ -89,13 +89,19 @@ class Game extends Component {
       doorToKeepShut = this.state.prizeDoor;
     }
     let doorsToOpen = [];
-    for (var i = 0; i < this.state.numOfDoors; i++) {
+    for (var i = 0; i < this.state.openDoors.length; i++) {
       if (i !== doorToKeepShut && i !== this.state.selectedDoor) {
-        doorsToOpen.push(i);
+        doorsToOpen.push(true);
+      } else {
+        doorsToOpen.push(false);
       }
     }
     this.setState({openDoors: doorsToOpen});
     console.log("Chose not to reveal door number " + (doorToKeepShut+1) + "...");
+  }
+
+  openAll() {
+    this.setState({openDoors: Array(this.state.openDoors.length).fill(true)});
   }
 }
 
