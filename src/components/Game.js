@@ -13,7 +13,7 @@ class Game extends Component {
 
     this.state = {
       currentPhase: 0,
-      prizeDoor: Math.floor((Math.random() * this.props.numOfDoors)),
+      prizeDoor: Math.floor((Math.random() * numOfDoors)),
       selectedDoor: null,
       phases: ["closeAll", "openZonks", "openAll"],
       openDoors: Array(parseInt(numOfDoors, 10)).fill(false)
@@ -23,16 +23,30 @@ class Game extends Component {
   render() {
     console.log("RENDERING: " + JSON.stringify(this.state));
     let doors = [];
+    let numOfClosedDoors = 0;
     for (let i = 0; i < this.state.openDoors.length; i++) {
       let isSelected = (this.state.selectedDoor !== null && this.state.selectedDoor === i);
       let isOpen = this.state.openDoors[i];
+      if (!isOpen) numOfClosedDoors++;
       let hasPrize = this.state.prizeDoor === i;
       doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={isOpen} hasPrize={hasPrize}/>);
     }
-    let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>Next</button> : <button disabled="true">Next</button>
+    let info = "";
+    let buttonText = "Next";
+    if (numOfClosedDoors === 0) {
+      if (this.state.selectedDoor === this.state.prizeDoor) {
+        info = "Congratulations, you won!";
+      } else {
+        info = "Aw, nuts! You lost.";
+      }
+      buttonText = "Again!";
+    } else {
+      info = "There are " + numOfClosedDoors + " out of " + this.state.openDoors.length + " closed doors. The odds of randomly guessing the correct door right now are 1 in " + numOfClosedDoors + ", or about " + (Math.round((1 / numOfClosedDoors) * 100)) + "%:";
+    }
+    let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>{buttonText}</button> : <button disabled="true">{buttonText}</button>;
     return (
       <section className="game">
-        <div>{doors.length} Doors:</div>
+        <div>{info}</div>
         {
           doors.map((door,index) => {
             return (
@@ -72,8 +86,8 @@ class Game extends Component {
   resetGame() {
     this.setState({
       currentPhase: 0,
-      prizeDoor: Math.floor((Math.random() * this.props.numOfDoors)),
-      openDoors: Array(parseInt(this.props.numOfDoors, 10)).fill(false),
+      prizeDoor: Math.floor((Math.random() * this.state.openDoors.length)),
+      openDoors: Array(parseInt(this.state.openDoors.length, 10)).fill(false),
       selectedDoor: null
     });
   }
