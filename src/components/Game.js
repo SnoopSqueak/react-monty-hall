@@ -16,7 +16,13 @@ class Game extends Component {
       prizeDoor: Math.floor((Math.random() * numOfDoors)),
       selectedDoor: null,
       phases: ["closeAll", "openZonks", "openAll"],
-      openDoors: Array(parseInt(numOfDoors, 10)).fill(false)
+      openDoors: Array(parseInt(numOfDoors, 10)).fill(false),
+      firstChoice: null,
+      numSwitches: 0,
+      numStays: 0,
+      numSwitchWins: 0,
+      numStayWins: 0,
+      numGamesPlayed: 0
     };
   }
 
@@ -31,22 +37,36 @@ class Game extends Component {
       let hasPrize = this.state.prizeDoor === i;
       doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={isOpen} hasPrize={hasPrize}/>);
     }
-    let info = "";
+    let topInfo = "";
     let buttonText = "Next";
     if (numOfClosedDoors === 0) {
       if (this.state.selectedDoor === this.state.prizeDoor) {
-        info = "Congratulations, you won!";
+        topInfo = "Congratulations, you won!";
       } else {
-        info = "Aw, nuts! You lost.";
+        topInfo = "Aw, nuts! You lost.";
       }
       buttonText = "Again!";
     } else {
-      info = "There are " + numOfClosedDoors + " out of " + this.state.openDoors.length + " closed doors. The odds of randomly guessing the correct door right now are 1 in " + numOfClosedDoors + ", or about " + (Math.round((1 / numOfClosedDoors) * 100)) + "%:";
+      topInfo = "There are " + numOfClosedDoors + " closed doors out of " + this.state.openDoors.length + ". The odds of randomly guessing the correct door right now are 1 in " + numOfClosedDoors + ", or about " + (Math.round((1 / numOfClosedDoors) * 100)) + "%:";
+    }
+    let switchPercent = Math.round(this.state.numSwitchWins / this.state.numSwitches * 100);
+    let stayPercent = Math.round(this.state.numStayWins / this.state.numStays * 100);
+    let gamesInfo = "You have played " + this.state.numGamesPlayed + ((this.state.numGamesPlayed === 1) ? " game" : " games") +  ".";
+    let switchInfo = "You have never switched.";
+    let stayInfo = "You have never stayed with your original choice.";
+    let switchTotalPercent = Math.round(this.state.numSwitchWins / this.state.numGamesPlayed * 100);
+    let stayTotalPercent = Math.round(this.state.numStayWins / this.state.numGamesPlayed * 100);
+    let totalInfo = "You won " + switchTotalPercent + "% of all games by switching, and " + stayTotalPercent + "% of all games by staying.";
+    if (this.state.numSwitches > 0) {
+      switchInfo = "You chose to switch " + this.state.numSwitches + (this.state.numSwitches === 1 ? " time" : " times") + ", which resulted in victory " + switchPercent + "% of the time.";
+    }
+    if (this.state.numStays > 0) {
+      stayInfo = "You chose to stay with your original choice " + this.state.numStays + (this.state.numStays === 1 ? " time" : " times") + ", which resulted in victory " + stayPercent + "% of the time.";
     }
     let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>{buttonText}</button> : <button disabled="true">{buttonText}</button>;
     return (
       <section className="game">
-        <div>{info}</div>
+        <div>{topInfo}</div>
         {
           doors.map((door,index) => {
             return (
@@ -57,6 +77,14 @@ class Game extends Component {
           })
         }
         <div>{button}</div>
+        <br/>
+        <div>{gamesInfo}</div>
+        <br/>
+        <div>{switchInfo}</div>
+        <br/>
+        <div>{stayInfo}</div>
+        <br/>
+        <div>{totalInfo}</div>
       </section>
     );
   }
@@ -88,7 +116,9 @@ class Game extends Component {
       currentPhase: 0,
       prizeDoor: Math.floor((Math.random() * this.state.openDoors.length)),
       openDoors: Array(parseInt(this.state.openDoors.length, 10)).fill(false),
-      selectedDoor: null
+      selectedDoor: null,
+      firstChoice: null,
+      secondChoice: null
     });
   }
 
@@ -110,12 +140,24 @@ class Game extends Component {
         doorsToOpen.push(false);
       }
     }
-    this.setState({openDoors: doorsToOpen});
+    this.setState({openDoors: doorsToOpen, firstChoice: this.state.selectedDoor});
     console.log("Chose not to reveal door number " + (doorToKeepShut+1) + "...");
   }
 
   openAll() {
-    this.setState({openDoors: Array(this.state.openDoors.length).fill(true)});
+    let newState = {openDoors: Array(this.state.openDoors.length).fill(true), numGamesPlayed: this.state.numGamesPlayed + 1};
+    if (this.state.firstChoice !== this.state.selectedDoor) {
+      newState.numSwitches = this.state.numSwitches + 1;
+      if (this.state.selectedDoor === this.state.prizeDoor) {
+        newState.numSwitchWins = this.state.numSwitchWins + 1;
+      }
+    } else {
+      newState.numStays = this.state.numStays + 1;
+      if (this.state.selectedDoor === this.state.prizeDoor) {
+        newState.numStayWins = this.state.numStayWins + 1;
+      }
+    }
+    this.setState(newState);
   }
 }
 
