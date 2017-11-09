@@ -8,7 +8,9 @@
 }
 
 .door-closed {
+  position: absolute;
   background-image: url("../images/door_closed.png");
+  top: 0;
   width: 256px;
   height: 256px;
   margin: 10px;
@@ -16,31 +18,43 @@
 
 .door-open {
   background-image: url("../images/door_open.png");
+  position: absolute;
+  top: 0;
   width: 256px;
   height: 256px;
   margin: 10px;
 }
 
-.door-zonk {
+.zonk {
   background-image: url("../images/zonk.png");
+  position: relative;
   width: 256px;
   height: 256px;
   margin: 10px;
 }
 
-.door-prize {
+.prize {
   background-image: url("../images/prize.png");
+  position: relative;
   width: 256px;
   height: 256px;
   margin: 10px;
 }
 
 .door-number {
-  position: relative;
+  position: absolute;
+  margin-left: auto;
+  margin-right: auto;
   top: 5%;
+  right: 5%;
+  left: 5%;
   font-size: 72pt;
 }
 
 .door-selected {
   background-color: yellow
+}
+
+.hidden {
+  background-image: none;
 }
