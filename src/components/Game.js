@@ -4,6 +4,7 @@ import Door from './Door.js';
 class Game extends Component {
   constructor (props) {
     super(props);
+
     let numOfDoors = this.props.numOfDoors;
     if (numOfDoors < Game.MIN_DOORS) {
       numOfDoors = Game.MIN_DOORS;
@@ -11,12 +12,13 @@ class Game extends Component {
       numOfDoors = Game.MAX_DOORS;
     }
 
+    let doors = this.generateDoors(numOfDoors);
+
     this.state = {
       currentPhase: 0,
-      prizeDoor: Math.floor((Math.random() * numOfDoors)),
       selectedDoor: null,
       phases: ["closeAll", "openZonks", "openAll"],
-      openDoors: Array(parseInt(numOfDoors, 10)).fill(false),
+      doors: doors,
       firstChoice: null,
       numSwitches: 0,
       numStays: 0,
@@ -26,28 +28,50 @@ class Game extends Component {
     };
   }
 
+  generateDoors(numOfDoors) {
+    let doors = [];
+    let prizeIndex = Math.floor((Math.random() * numOfDoors));
+    console.log("Generated prize behind door #" + (prizeIndex + 1) + " (array index " + prizeIndex + ")");
+    for (var i = 0; i < numOfDoors; i++) {
+      if (prizeIndex === i) {
+        doors.push({content: "prize", isOpen: false});
+      } else {
+        let randNum = (Math.floor(Math.random() * 9) + 1);
+        if (randNum >= 5) {
+          randNum = 1;
+        } else if (randNum >= 2) {
+          randNum = 2;
+        } else {
+          randNum = 3;
+        }
+        doors.push({content: "zonk zonk" + randNum, isOpen: false});
+      }
+    };
+    return doors;
+  }
+
   render() {
-    console.log("RENDERING: " + JSON.stringify(this.state));
+    //console.log("RENDERING: " + JSON.stringify(this.state));
     let doors = [];
     let numOfClosedDoors = 0;
-    for (let i = 0; i < this.state.openDoors.length; i++) {
+    this.state.doors.forEach((door, i) => {
+      //console.log("Rendering this door: " + JSON.stringify(door));
+      if (!door.isOpen) numOfClosedDoors++;
       let isSelected = (this.state.selectedDoor !== null && this.state.selectedDoor === i);
-      let isOpen = this.state.openDoors[i];
-      if (!isOpen) numOfClosedDoors++;
-      let hasPrize = this.state.prizeDoor === i;
-      doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={isOpen} hasPrize={hasPrize}/>);
-    }
+      doors.push(<Door number={i+1} clickHandler={(e) => this.clickDoor(e, i)} isSelected={isSelected} isOpen={door.isOpen} content={door.content}/>);
+    });
+
     let topInfo = "";
     let buttonText = "Next";
     if (numOfClosedDoors === 0) {
-      if (this.state.selectedDoor === this.state.prizeDoor) {
+      if (this.state.doors[this.state.selectedDoor].content === "prize") {
         topInfo = "Congratulations, you won!";
       } else {
         topInfo = "Aw, nuts! You lost.";
       }
       buttonText = "Again!";
     } else {
-      topInfo = "There are " + numOfClosedDoors + " closed doors out of " + this.state.openDoors.length + ". The odds of randomly guessing the correct door right now are 1 in " + numOfClosedDoors + ", or about " + (Math.round((1 / numOfClosedDoors) * 100)) + "%:";
+      topInfo = "There are " + numOfClosedDoors + " closed doors out of " + this.state.doors.length + ". The odds of randomly guessing the correct door right now are 1 in " + numOfClosedDoors + ", or about " + (Math.round((1 / numOfClosedDoors) * 100)) + "%:";
     }
     let switchPercent = Math.round(this.state.numSwitchWins / this.state.numSwitches * 100);
     let stayPercent = Math.round(this.state.numStayWins / this.state.numStays * 100);
@@ -68,7 +92,7 @@ class Game extends Component {
     let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>{buttonText}</button> : <button disabled="true">{buttonText}</button>;
     return (
       <section className="game">
-        <div>Select number of doors for next game: <input id="door-num-input" type="text" defaultValue={this.state.openDoors.length}/></div>
+        <div>Select number of doors for next game: <input id="door-num-input" type="text" defaultValue={this.state.doors.length}/></div>
         <div>{topInfo}</div>
         {
           doors.map((door,index) => {
@@ -95,7 +119,7 @@ class Game extends Component {
   clickDoor(e, i) {
     e.preventDefault();
     console.log("Clicked on door #" + (i + 1));
-    if (this.state.openDoors[i]) return;
+    if (this.state.doors[i].isOpen) return;
     this.setState({selectedDoor: i});
     console.log("Set selectedDoor index = " + i);
   }
@@ -124,10 +148,11 @@ class Game extends Component {
       document.getElementById("door-num-input").value = numOfDoors;
     }
 
+    let doors = this.generateDoors(numOfDoors);
+
     this.setState({
       currentPhase: 0,
-      prizeDoor: Math.floor((Math.random() * numOfDoors)),
-      openDoors: Array(parseInt(numOfDoors, 10)).fill(false),
+      doors: doors,
       selectedDoor: null,
       firstChoice: null,
       secondChoice: null
@@ -136,36 +161,45 @@ class Game extends Component {
 
   openZonks() {
     let doorToKeepShut;
-    if (this.state.selectedDoor === this.state.prizeDoor) {
-      doorToKeepShut = Math.floor(Math.random() * (this.props.numOfDoors - 1));
+    if (this.state.doors[this.state.selectedDoor].content === "prize") {
+      doorToKeepShut = Math.floor(Math.random() * (this.state.doors.length - 1));
       if (doorToKeepShut >= this.state.selectedDoor) {
         doorToKeepShut++;
       }
     } else {
-      doorToKeepShut = this.state.prizeDoor;
+      this.state.doors.forEach((door, index) => {
+        if (door.content === "prize") {
+          doorToKeepShut = index;
+          return;
+        }
+      });
     }
-    let doorsToOpen = [];
-    for (var i = 0; i < this.state.openDoors.length; i++) {
-      if (i !== doorToKeepShut && i !== this.state.selectedDoor) {
-        doorsToOpen.push(true);
-      } else {
-        doorsToOpen.push(false);
-      }
+
+    let newDoors = [];
+    for (var i = 0; i < this.state.doors.length; i++) {
+      newDoors.push({content: this.state.doors[i].content, isOpen: (i !== doorToKeepShut && i !== this.state.selectedDoor)});
     }
-    this.setState({openDoors: doorsToOpen, firstChoice: this.state.selectedDoor});
+
+    this.setState({doors: newDoors, firstChoice: this.state.selectedDoor});
     console.log("Chose not to reveal door number " + (doorToKeepShut+1) + "...");
+    //console.log("Current state: " + JSON.stringify(this.state.doors));
+    //console.log("New doors: " + JSON.stringify(newDoors));
   }
 
   openAll() {
-    let newState = {openDoors: Array(this.state.openDoors.length).fill(true), numGamesPlayed: this.state.numGamesPlayed + 1};
+    let newDoors = this.state.doors;
+    newDoors.forEach((door) => {
+      door.isOpen = true;
+    });
+    let newState = {doors: newDoors, numGamesPlayed: this.state.numGamesPlayed + 1};
     if (this.state.firstChoice !== this.state.selectedDoor) {
       newState.numSwitches = this.state.numSwitches + 1;
-      if (this.state.selectedDoor === this.state.prizeDoor) {
+      if (this.state.doors[this.state.selectedDoor].content === "prize") {
         newState.numSwitchWins = this.state.numSwitchWins + 1;
       }
     } else {
       newState.numStays = this.state.numStays + 1;
-      if (this.state.selectedDoor === this.state.prizeDoor) {
+      if (this.state.doors[this.state.selectedDoor].content === "prize") {
         newState.numStayWins = this.state.numStayWins + 1;
       }
     }
