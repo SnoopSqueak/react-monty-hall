@@ -3,8 +3,16 @@ import React, { Component } from 'react';
 class Door extends Component {
   constructor(props) {
     super(props);
+    let randNum = (Math.floor(Math.random() * 6) + 1);
+    if (randNum >= 3) {
+      randNum = 1;
+    } else if (randNum > 1) {
+      randNum = 2;
+    } else {
+      randNum = 3;
+    }
     this.state = {
-      variation: (Math.floor(Math.random() * 3) + 1)
+      variation: randNum
     }
   }
 

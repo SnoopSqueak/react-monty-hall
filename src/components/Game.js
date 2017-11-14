@@ -55,8 +55,10 @@ class Game extends Component {
     let switchInfo = "You have never switched.";
     let stayInfo = "You have never stayed with your original choice.";
     let switchTotalPercent = Math.round(this.state.numSwitchWins / this.state.numGamesPlayed * 100);
+    if (isNaN(switchTotalPercent)) switchTotalPercent = 0;
     let stayTotalPercent = Math.round(this.state.numStayWins / this.state.numGamesPlayed * 100);
-    let totalInfo = "You won " + switchTotalPercent + "% of all games by switching, and " + stayTotalPercent + "% of all games by staying.";
+    if (isNaN(stayTotalPercent)) stayTotalPercent = 0;
+    let totalInfo = "Out of all the games you've won and lost, you won " + switchTotalPercent + "% by switching and " + stayTotalPercent + "% by staying.";
     if (this.state.numSwitches > 0) {
       switchInfo = "You chose to switch " + this.state.numSwitches + (this.state.numSwitches === 1 ? " time" : " times") + ", which resulted in victory " + switchPercent + "% of the time.";
     }
@@ -66,6 +68,7 @@ class Game extends Component {
     let button = (this.state.selectedDoor !== null) ? <button onClick={(e) => this.nextPhase(e)}>{buttonText}</button> : <button disabled="true">{buttonText}</button>;
     return (
       <section className="game">
+        <div>Select number of doors for next game: <input id="door-num-input" type="text" defaultValue={this.state.openDoors.length}/></div>
         <div>{topInfo}</div>
         {
           doors.map((door,index) => {
@@ -112,10 +115,19 @@ class Game extends Component {
   }
 
   resetGame() {
+    let numOfDoors = document.getElementById("door-num-input").value;
+    if (numOfDoors < Game.MIN_DOORS) {
+      numOfDoors = Game.MIN_DOORS;
+      document.getElementById("door-num-input").value = numOfDoors;
+    } else if (numOfDoors > Game.MAX_DOORS) {
+      numOfDoors = Game.MAX_DOORS;
+      document.getElementById("door-num-input").value = numOfDoors;
+    }
+
     this.setState({
       currentPhase: 0,
-      prizeDoor: Math.floor((Math.random() * this.state.openDoors.length)),
-      openDoors: Array(parseInt(this.state.openDoors.length, 10)).fill(false),
+      prizeDoor: Math.floor((Math.random() * numOfDoors)),
+      openDoors: Array(parseInt(numOfDoors, 10)).fill(false),
       selectedDoor: null,
       firstChoice: null,
       secondChoice: null
