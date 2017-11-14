@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
 
 class Door extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      variation: (Math.floor(Math.random() * 3) + 1)
+    }
+  }
+
   render() {
     let doorClass = this.props.isOpen ? "door-open" : "door-closed";
-    let prizeClass = this.props.hasPrize ? "prize" : "zonk";
+    let prizeClass = this.props.hasPrize ? "prize" : "zonk zonk" + this.state.variation;
     let parentClass = "door";
     if (this.props.isSelected) parentClass += " door-selected";
     if (!this.props.isOpen) {

@@ -26,11 +26,22 @@
 }
 
 .zonk {
-  background-image: url("../images/zonk.png");
   position: relative;
   width: 256px;
   height: 256px;
   margin: 10px;
+}
+
+.zonk1 {
+  background-image: url("../images/zonk1.png");
+}
+
+.zonk2 {
+  background-image: url("../images/zonk2.png");
+}
+
+.zonk3 {
+  background-image: url("../images/zonk3.png");
 }
 
 .prize {
