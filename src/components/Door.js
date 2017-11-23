@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 
 class Door extends Component {
   render() {
-    let doorClass = this.props.isOpen ? "door-open" : "door-closed";
+    let doorClass = this.props.isOpen ? "door door-open" : "door door-closed";
     let prizeClass = this.props.content;
-    let parentClass = "door";
+    let parentClass = "door-container";
     if (this.props.isSelected) parentClass += " door-selected";
     if (!this.props.isOpen) {
       prizeClass += " hidden";
